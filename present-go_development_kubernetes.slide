@@ -13,6 +13,143 @@ siuyin@beyondbroadcast.com
 - Containerize: Dockerfile
 - Deploy (Test [fuctional, integration, end-to-end]: Skaffold
 - Deploy: Staging, Production, Metrics, Logging
+
+* Writing Go code
+
+First outline what you want to build, define system level components.
+
+  Go Hello World web app
+  NATS Streaming provides internal messaging and stores state
+  
+  Deployed on Kubernetes
+
+Then define Go app's major modules.
+
+  Web request routing: main.go
+  Web request handlers: / -> time service (time.go)
+
+* Initialise go module
+
+  > go mod init github.com/siuyin/present-go_development_kubernetes
+  go: creating new go.mod: module github.com/siuyin/present-go_development_kubernetes
+
+The above command creates a go.mod file.
+This file tells Go that this folder hosts a set of Go packages that can be found at https://github.com/siuyin/present-go_development_kubernetes .
+
+  > cat go.mod
+  module github.com/siuyin/present-go_development_kubernetes
+  
+  go 1.13
+
+* Write main.go
+
+My convention is to put executable commands in a cmd folder:
+
+  > mkdir -p cmd/hello_app/
+
+cmd/hello_app/main.go:
+
+  package main
+  
+  import "fmt"
+  
+  func main() {
+          fmt.Println("hello_app")
+  }
+
+build and run:
+
+  > go run cmd/hello_app/main.go
+  hello_app
+
+
+* main.go: add http server
+
+cmd/hello_app/main.go:
+
+  ...
+  
+  func main() {
+          fmt.Println("hello_app")
+          http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+                  fmt.Fprintf(w, "Hello World!\n")
+          })
+          log.Fatal(http.ListenAndServe(":8080", nil))
+  }
+
+test:
+
+  > go run cmd/hello_app/main.go
+
+In a separate terminal:
+
+  > curl localhost:8080/
+  Hello World!
+
+* Time service
+
+Create a folder to hold _our_ time module.
+
+  mkdir time
+
+time/time.go (first attempt)
+
+  package time
+  
+  import gt "time" // go standard library time package, imported as gt
+  
+  func Now() string {
+  	return gt.Now().Format("15:04:05")
+  }
+
+But this poses a testing problem -- it returns a new time each time it is tested!
+
+* Time service with testability
+
+.code time/time.go
+
+* Time service test
+
+.code time/time_test.go /10 OMIT/,/20 OMIT/
+
+* Time service example and unit test run
+
+.code time/time_test.go /20 OMIT/,/30 OMIT/
+
+Unit test run:
+
+  > go test time/*.go -v
+  === RUN   TestNow
+  --- PASS: TestNow (0.00s)
+  === RUN   ExampleNow
+  --- PASS: ExampleNow (0.00s)
+  PASS
+  ok      command-line-arguments  0.002s
+
+
+* Main function
+
+.code cmd/hello_app/main.go /20 OMIT/,/30 OMIT/
+
+webServer and heartBeat are independently executing goroutines.
+
+My preferred way of communication between these internal "processes" is with NATS Streaming or NATS.
+
+Communication with external systems can be through http / json or gRPC.
+
+
+* webServer
+
+.code cmd/hello_app/main.go /10 OMIT/,/20 OMIT/
+.code cmd/hello_app/main.go /30 OMIT/,/40 OMIT/
+
+* heartBeat
+
+.code cmd/hello_app/main.go /10 OMIT/,/20 OMIT/
+.code cmd/hello_app/main.go /40 OMIT/,/50 OMIT/
+
+
+
 * Presentation and code download
 
 .link https://github.com/siuyin/present-go_development_kubernetes
