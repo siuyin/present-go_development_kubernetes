@@ -152,6 +152,23 @@ Communication with external systems can be through http / json or gRPC.
 .code cmd/hello_app/main.go /10 OMIT/,/20 OMIT/
 .code cmd/hello_app/main.go /30 OMIT/,/40 OMIT/
 
+* Go modules and external dependencies
+
+"github.com/siuyin/dflt" is an external dependency.
+
+When go test, go run or any other "go" command is run:
+
+- go.mod is updated to include the external dependency
+
+  > cat go.mod
+  module github.com/siuyin/present-go_development_kubernetes
+  
+  go 1.13
+
+  require github.com/siuyin/dflt v0.0.0-20190616123008-ea16caf9b8ef
+
+- go.sum, a checksum file, is created. go.sum should be added to git or your software repository.
+
 * heartBeat
 
 .code cmd/hello_app/main.go /10 OMIT/,/20 OMIT/
