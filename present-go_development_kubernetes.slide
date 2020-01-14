@@ -32,7 +32,9 @@ Then define Go app's major modules.
   Web request routing: main.go
   Web request handlers: / -> time service (time.go)
 
-Setup go development environment:
+
+
+* Set up go development environment:
 
 .link https://golang.org/dl/
 
