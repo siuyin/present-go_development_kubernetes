@@ -103,6 +103,7 @@ time/time.go (first attempt)
   }
 
 But this poses a testing problem -- it returns a new time each time it is tested!
+One way around this issue is to define what is "now" and subtitute a fixed time during testing.
 
 * Time service with testability
 
@@ -132,6 +133,7 @@ Unit test run:
 .code cmd/hello_app/main.go /20 OMIT/,/30 OMIT/
 
 webServer and heartBeat are independently executing goroutines.
+I prefer this style which I call the "Hakka Roundhouse" monolith.
 
 My preferred way of communication between these internal "processes" is with NATS Streaming or NATS.
 
@@ -149,6 +151,62 @@ Communication with external systems can be through http / json or gRPC.
 .code cmd/hello_app/main.go /40 OMIT/,/50 OMIT/
 
 
+* Containerizing / Docker
+
+Create a .dockerignore:
+
+.code .dockerignore
+
+Create a dockerfile:
+
+.code dockerfile
+
+* Dockerfile notes
+This is a two stage build:
+
+- Stage 1 uses the Go Alpine image to build. Apline is a smaller image good for pure-go compiles. For cgo (glibc) use the regular golang:1.13 image.
+- Stage 2 deploys the result of the build into an empty (scratch) image.  
+
+"go mod download" allows caching of the downloaded modules in the image being built:
+
+- To be effective source code changes reflected in "COPY . ." must be after "go mod download".
+
+* Create and tag an image
+
+The image created below is siuyin/junk with a default tag of "latest".
+
+  docker build . -t siuyin/junk
+
+
+We can provide a "v1" tag thus:
+
+  docker build . -t siuyin/junk:v1
+
+To list images under siuyin/junk:
+
+  > docker images siuyin/junk
+  REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+  siuyin/junk         latest              d3100abc3851        47 minutes ago      7.4MB
+  siuyin/junk         v1                  d3100abc3851        47 minutes ago      7.4MB
+
+* Create a container and run it
+
+  docker run -it --rm -p 9090:8080 siuyin/junk 
+    or
+  docker run -it --rm -p 9090:8080 siuyin/junk:v1
+
+Notes:
+-it : i for interactive and t for "allocate TTY (terminal)".
+--rm :  to remove the container after it exits.
+-p : connect (tcp) port 9090 on host running docker daemon to port 8080 of the code running inside the container.
+siuyin/junk : name of the image used create the container. If tag is not specified "latest" is used.
+
+---
+
+On host running docker daemon:
+
+  > curl 127.0.0.1:9090
+  Hello, the time is 02:44:07
 
 * Presentation and code download
 

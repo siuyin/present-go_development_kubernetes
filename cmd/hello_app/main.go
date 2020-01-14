@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/siuyin/dflt"
 	myt "github.com/siuyin/present-go_development_kubernetes/time"
 )
 
@@ -25,7 +26,8 @@ func webServer() {
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Hello, the time is %s\n", myt.Now(c)) // my time package // HL
 		})
-		log.Fatal(http.ListenAndServe(":8080", nil))
+		port := dflt.EnvString("PORT", "8080")
+		log.Fatal(http.ListenAndServe(":"+port, nil))
 	}()
 }
 
