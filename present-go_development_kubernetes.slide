@@ -18,6 +18,7 @@ siuyin@beyondbroadcast.com
 
 
 
+
 * Writing Go code
 
 First outline what you want to build, define system level components.
@@ -139,6 +140,8 @@ One way around this issue is to define what is "now" and subtitute a fixed time 
 
 .code time/time_test.go /10 OMIT/,/20 OMIT/
 
+
+
 * Time service example and unit test run
 
 .code time/time_test.go /20 OMIT/,/30 OMIT/
@@ -180,7 +183,6 @@ Communication with external systems can be through http / json or gRPC.
 
 .code cmd/hello_app/main.go /10 OMIT/,/20 OMIT/
 .code cmd/hello_app/main.go /40 OMIT/,/50 OMIT/
-
 
 
 
@@ -263,6 +265,8 @@ This is a two stage build:
 "go mod download" allows caching of the downloaded modules in the image being built:
 
 - To be effective source code changes reflected in "COPY . ." must be after "go mod download".
+
+
 
 * Create and tag an image
 
