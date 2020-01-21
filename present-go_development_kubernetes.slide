@@ -13,7 +13,7 @@ siuyin@beyondbroadcast.com
 - Write code: Go 
 - Test: unit tests
 - Containerize: Dockerfile
-- Deploy (Test [functional, integration, end-to-end]: Skaffold
+- Deploy (Test [functional, integration, end-to-end]: kustomize, skaffold
 - Deploy: Staging, Production, Metrics, Logging
 
 
@@ -698,6 +698,48 @@ Note the generated tag.
 
 The --tail option streams logs to the invoking terminal.
 
+
+* Metrics
+
+  > kubectl top node
+  NAME       CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
+  minikube   1069m        53%    1349Mi          72%
+
+  > kubectl top pods
+  NAME                                 CPU(cores)   MEMORY(bytes)   
+  my-hello-app-97f8747fd-2kgdl         0m           1Mi             
+  my-nats-streaming-667c98485b-d86s6   1m           3Mi
+
+kubectl top pods can be used to estimate cpu (milli-cores) and memory requirements.
+
+* Resource quotas
+
+In production, apply resource quota like thus:
+
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: quota-mem-cpu-demo
+  spec:
+    containers:
+    - name: quota-mem-cpu-demo-ctr
+      image: nginx
+      resources:
+        limits:
+          memory: "800Mi"
+          cpu: "800m" 
+        requests:
+          memory: "600Mi"
+          cpu: "400m"
+
+* Retrieving pod logs
+
+  > kubectl logs pod/my-hello-app-97f8747fd-2kgdl
+  hello_app
+  09:14:39
+  09:14:44
+  09:14:49
+      
 * Presentation and code download
 
 
