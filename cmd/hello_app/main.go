@@ -20,12 +20,14 @@ func main() {
 }
 
 // 30 OMIT
+var rootHandler = func(w http.ResponseWriter, r *http.Request) {
+	c := myt.Clock{}
+	fmt.Fprintf(w, "Hello, the time is %s\n", myt.Now(c)) // my time package // HL
+}
+
 func webServer() {
 	go func() {
-		c := myt.Clock{}
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Hello, the time is %s\n", myt.Now(c)) // my time package // HL
-		})
+		http.HandleFunc("/", rootHandler)
 		port := dflt.EnvString("PORT", "8080")
 		log.Fatal(http.ListenAndServe(":"+port, nil))
 	}()

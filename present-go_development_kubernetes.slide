@@ -184,7 +184,12 @@ Communication with external systems can be through http / json or gRPC.
 .code cmd/hello_app/main.go /10 OMIT/,/20 OMIT/
 .code cmd/hello_app/main.go /40 OMIT/,/50 OMIT/
 
+* Functional testing with httptest
 
+cmd/hello_app/main_test.go:
+
+.code cmd/hello_app/main_test.go /10 OMIT/,/20 OMIT/
+.code cmd/hello_app/main_test.go /30 OMIT/,/40 OMIT/
 
 * Go modules and external dependencies
 
