@@ -13,7 +13,7 @@ siuyin@beyondbroadcast.com
 - Write code: Go 
 - Test: unit tests
 - Containerize: Dockerfile
-- Deploy (Test [fuctional, integration, end-to-end]: Skaffold
+- Deploy (Test [functional, integration, end-to-end]: Skaffold
 - Deploy: Staging, Production, Metrics, Logging
 
 
@@ -378,7 +378,68 @@ deploy is short for deployment
 po is short for pod
 -l app=hello-app <-- select pods with labels matching app=hello-app
 
+* Deploying NATS Streaming
+
+base/nats-streaming-deployment.yaml:
+
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: nats-streaming
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: nats-streaming
+    template:
+      metadata:
+        labels:
+          app: nats-streaming
+      spec:
+        terminationGracePeriodSeconds: 5
+        containers:
+        - name: nats-streaming
+          image: nats-streaming:0.16.2
+
+* Check NATS Streaming
+
+  > kubectl apply -f base/nats-streaming-deployment.yaml 
+  deployment.apps/nats-streaming created
+
+  > kubectl get po -l app=nats-streaming
+  NAME                              READY   STATUS    RESTARTS   AGE
+  nats-streaming-76599cdffc-hknn9   1/1     Running   0          110s
+
+At this stage, both hello-app and nats-streaming are running in kubernetes.
+
+However neither are  accessible from within or outside the cluster. We need services.
+
+* hello-app service
+
+base/service.yaml:
+
+.code base/service.yaml
+
+* hello-app service notes:
+metadata/name: hello-app <-- this service is named hello-app
+
+spec/selector: app: hello-app <-- this service connects to pods with labels app=hello-app
+
+spec/ports[0]/port: 8080 <-- connect to this service via port 8080
+
+spec/ports[0]/targetPort: 8080 <-- connects to port 8080 on backend pods.
+
+spec/type: NodePort <-- exposes this service on all nodes of the kubernetes cluster
+
+spec/type can also be ClusterIP which is the default type. ClusterIP services are accessible only within the cluster.
+
+Service names (metadata/name) are registered internally with kubernetes DNS and can thus be reached by name.
+
+  eg. from a pod running in kubernetes
+  > curl hello-app:8080/
+
 * Presentation and code download
+
 
 .link https://github.com/siuyin/present-go_development_kubernetes
 
