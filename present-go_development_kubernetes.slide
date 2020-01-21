@@ -744,7 +744,25 @@ In production, apply resource quota like thus:
   09:14:39
   09:14:44
   09:14:49
+
+* End-to-end testing
+
+test/end2end/main.go:
+
+.code test/end2end/main.go /20 OMIT/,/30 OMIT/
+
+* End-to-end testing (2)
+
+.code test/end2end/main.go /30 OMIT/,/40 OMIT/
       
+  > ENDPOINT=http://192.168.39.230:31051/ go run test/end2end/main.go
+  End to end testing.
+  
+  getting http://192.168.39.230:31051/
+  checking status code
+  checking response
+  
+  tests complete.
 * Presentation and code download
 
 
