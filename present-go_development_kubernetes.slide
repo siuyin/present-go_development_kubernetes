@@ -438,6 +438,19 @@ Service names (metadata/name) are registered internally with kubernetes DNS and 
   eg. from a pod running in kubernetes
   > curl hello-app:8080/
 
+* Accessing hello-app from outside the cluster.
+
+As hello-app service is a NodePort it can be reached from outside the cluter.
+
+  > kubectl cluster-info
+  Kubernetes master is running at https://192.168.39.230:8443
+
+  > kubectl get svc | grep hello-app
+  hello-app                   NodePort    10.96.30.244    <none>        8080:32449/TCP                15m
+
+  > curl 192.168.39.230:32449/
+  Hello, the time is 07:13:09
+
 * Presentation and code download
 
 
