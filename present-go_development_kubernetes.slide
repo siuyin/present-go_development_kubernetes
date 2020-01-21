@@ -330,7 +330,7 @@ check:
 
 * kubernetes config
 
-minikube writes its access credentials to default location: $HOME/.kube/config .
+minikube writes its access credentials to a default location: $HOME/.kube/config .
 
 This is where kubectl looks for the config as well.
 
@@ -460,7 +460,9 @@ base/nats-streaming-deployment.yaml:
 
 At this stage, both hello-app and nats-streaming are running in kubernetes.
 
-However neither are  accessible from within or outside the cluster. We need services.
+However neither are  accessible from within or outside the cluster.
+
+We need services.
 
 * hello-app service
 
@@ -503,9 +505,10 @@ As hello-app service is a NodePort it can be reached from outside the cluter.
 
 We now have fully working deployments for hello-app and nats-streaming.
 
-However we often want to deploy multiple instances of our applications within a kubernetes cluster. Say my-hello-app and my-nats-streaming.
+However we often want to deploy multiple instances of our applications within a kubernetes cluster.
+Say my-hello-app and my-nats-streaming.
 
-kustomize allow us to easily to this.
+kustomize allows us to easily do this.
 
 kustomize is a single static binary download.
 
