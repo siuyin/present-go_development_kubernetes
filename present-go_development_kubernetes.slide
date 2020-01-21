@@ -308,7 +308,7 @@ On host running docker daemon:
   > curl 127.0.0.1:9090
   Hello, the time is 02:44:07
 
-* Kubernetes
+* kubernetes
 
 Launch development kubernetes 'cluster' with minikube.
 
@@ -321,6 +321,49 @@ check:
   > kubectl cluster-info
   Kubernetes master is running at https://192.168.39.230:8443
   KubeDNS is running at https://192.168.39.230:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+
+* kubernetes config
+
+minikube writes its access credentials to default location: $HOME/.kube/config .
+
+This is where kubectl looks for the config as well.
+
+kubectl can be told which configuration to use with the KUBECONFIG environment variable.
+
+  > export KUBECONFIG=~/go/kube/minikube
+  > kubectl get no
+  NAME       STATUS   ROLES    AGE    VERSION
+  minikube   Ready    master   5d8h   v1.17.0
+
+
+  > export KUBECONFIG=~/go/kube/rem-config
+  > kubectl get no
+  NAME            STATUS   ROLES    AGE    VERSION
+  remote-kube     Ready    master   603d   v1.15.7
+
+
+* $HOME/.kube/config:
+
+  apiVersion: v1
+  clusters:
+  - cluster:
+      certificate-authority: /home/siuyin/.minikube/ca.crt
+      server: https://192.168.39.230:8443
+    name: minikube
+  contexts:
+  - context:
+      cluster: minikube
+      user: minikube
+    name: minikube
+  current-context: minikube
+  kind: Config
+  preferences: {}
+  users:
+  - name: minikube
+    user:
+      client-certificate: /home/siuyin/.minikube/client.crt
+      client-key: /home/siuyin/.minikube/client.key
 
 * Create a kubernetes deployment
 
@@ -594,6 +637,66 @@ We can automate tag creation and updating of kustomize files with *skaffold*.
   v1.2.0
 
 
+* skaffold.yaml
+
+.code skaffold.yaml
+
+Note the absence an image tag for image: siuyin/junk .
+
+* skaffold render
+
+  > skaffold render
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      skaffold.dev/deployer: kustomize
+      stage: dev
+      sys: my
+    name: my-hello-app
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: hello-app
+        stage: dev
+        sys: my
+    template:
+      ...
+      spec:
+        containers:
+        - image: siuyin/junk:28dab121d7d329d7fd2d05e4829f2bbb64eee06be5cf25a679c4f55009b665fc
+          name: hello-app
+
+Note the generated tag.
+
+* skaffold
+
+- builds artifact: docker image siuyin/junk
+- tags the image with the SHA1 sum of the image
+- pushes the image to a docker registry (if deploying to a remote cluster)
+- invokes kustomize passing the correct image tag
+- invokes kustomize/kubectl to deploy to kubernetes
+
+* skaffold run
+
+  > skaffold run --tail
+  ...
+  Successfully built 28dab121d7d3
+  Successfully tagged siuyin/junk:494f650-dirty
+  Tags used in deployment:
+   - siuyin/junk -> siuyin/junk:28dab121d7d329d7fd2d05e4829f2bbb64eee06be5cf25a679c4f55009b665fc
+     local images can't be referenced by digest. They are tagged and referenced by a unique ID instead
+  Starting deploy...
+   - configmap/my-cfg-f7974mhb9k created
+   - service/my-hello-app created
+   - service/my-nats-streaming created
+   - deployment.apps/my-hello-app created
+   - deployment.apps/my-nats-streaming created
+  [my-hello-app-97f8747fd-2kgdl hello-app] hello_app
+  [my-hello-app-97f8747fd-2kgdl hello-app] 09:14:39
+
+The --tail option streams logs to the invoking terminal.
 
 * Presentation and code download
 
