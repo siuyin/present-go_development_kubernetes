@@ -50,7 +50,7 @@ Then define Go app's major modules.
   go: creating new go.mod: module github.com/siuyin/present-go_development_kubernetes
 
 The above command creates a go.mod file.
-This file tells Go that this folder hosts a set of Go packages that can be found at https://github.com/siuyin/present-go_development_kubernetes .
+go.mod tells Go that this folder hosts a set of Go packages that can be found at https://github.com/siuyin/present-go_development_kubernetes .
 
   > cat go.mod
   module github.com/siuyin/present-go_development_kubernetes

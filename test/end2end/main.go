@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/siuyin/dflt"
 )
@@ -14,6 +15,7 @@ import (
 // 20 OMIT
 func main() {
 	endp := dflt.EnvString("ENDPOINT", "http://192.168.39.230:31051/")
+	start := time.Now()
 	fmt.Println("End to end testing.\n")
 	fmt.Printf("getting %s\n", endp)
 	resp, err := http.Get(endp)
@@ -36,7 +38,7 @@ func main() {
 		log.Fatalf("unexpected body: %s\n", body)
 	}
 
-	fmt.Printf("\ntests complete.\n")
+	fmt.Printf("\ntests complete. Took %g seconds\n", time.Now().Sub(start).Seconds())
 }
 
 // 40 OMIT
