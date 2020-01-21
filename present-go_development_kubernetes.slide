@@ -250,9 +250,9 @@ Create a .dockerignore:
 
 .code .dockerignore
 
-Create a dockerfile:
+Create a Dockerfile:
 
-.code dockerfile
+.code Dockerfile
 
 
 
@@ -308,8 +308,75 @@ On host running docker daemon:
   > curl 127.0.0.1:9090
   Hello, the time is 02:44:07
 
+* Kubernetes
+
+Launch development kubernetes 'cluster' with minikube.
+
+check:
+
+  > kubectl get no
+  NAME       STATUS   ROLES    AGE    VERSION
+  minikube   Ready    master   5d3h   v1.17.0
+  
+  > kubectl cluster-info
+  Kubernetes master is running at https://192.168.39.230:8443
+  KubeDNS is running at https://192.168.39.230:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+* Create a kubernetes deployment
+
+base/deployment.yaml:
+
+  metadata:
+    name: hello-app
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: hello-app
+    template:
+      metadata:
+        labels:
+          app: hello-app
+      spec:
+        terminationGracePeriodSeconds: 5
+        containers:
+        - name: hello-app
+          image: siuyin/junk:v1
+
+* Deployment notes
+
+spec/replicas: 1 <-- deploy one replica
+
+spec/selector/matchLabels: app: hello-app <-- manage pods with label app=hello-app
+
+spec/template/metadata/labels: app: hello-app <-- when creating pods give them a label app=hello-app
+
+spec/template/spec/containers[0]/image: siuyin/junk:v1 <-- use this image when creating a pod
+
+---
+
+metadata/name: hello-app <-- name this deployment hello-app
+spec/template/spec/containers[0]/name: hello-app <-- name pods created by deployment hello-app
 
 
+* Deploying hello-app deployment
+
+  > kubectl apply -f base/deployment.yaml
+  deployment.apps/hello-app created
+
+  > kubectl get deploy
+  NAME                READY   UP-TO-DATE   AVAILABLE   AGE
+  hello-app           1/1     1            1           3m38s
+
+  > kubectl get po -l app=hello-app
+  NAME                         READY   STATUS    RESTARTS   AGE
+  hello-app-7cb499bc66-dxkjm   1/1     Running   0          5m1s
+
+Notes:
+
+deploy is short for deployment
+po is short for pod
+-l app=hello-app <-- select pods with labels matching app=hello-app
 
 * Presentation and code download
 
