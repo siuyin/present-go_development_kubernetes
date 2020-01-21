@@ -1,0 +1,10 @@
+nameSuffix: -prod
+commonLabels:
+  stage: prod
+configMapGenerator:
+- name: cfg
+  behavior: merge
+  literals:
+  - STAGE=prod
+bases:
+- ../../base

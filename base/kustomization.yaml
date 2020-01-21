@@ -1,0 +1,13 @@
+namePrefix: my-
+commonLabels:
+  sys: my
+  stage: dev
+configMapGenerator:
+- name: cfg
+  literals:
+  - STAGE=dev
+resources:
+- deployment.yaml
+- service.yaml
+- nats-streaming-deployment.yaml
+- nats-streaming-service.yaml

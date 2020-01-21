@@ -1,0 +1,16 @@
+apiVersion: skaffold/v1
+kind: Config
+build:
+  artifacts:
+  - image: siuyin/junk
+    context: .
+    docker: 
+      dockerfile: Dockerfile
+deploy:
+  kustomize:
+    path: base
+profiles:
+- name: prod
+  deploy:
+    kustomize:
+      path: overlays/prod

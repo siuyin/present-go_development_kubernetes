@@ -451,6 +451,150 @@ As hello-app service is a NodePort it can be reached from outside the cluter.
   > curl 192.168.39.230:32449/
   Hello, the time is 07:13:09
 
+* Customization with kustomize
+
+We now have fully working deployments for hello-app and nats-streaming.
+
+However we often want to deploy multiple instances of our applications within a kubernetes cluster. Say my-hello-app and my-nats-streaming.
+
+kustomize allow us to easily to this.
+
+kustomize is a single static binary download.
+
+ > kustomize version
+ {Version:kustomize/v3.4.0 GitCommit:2c9635967a2b1469d605a91a1d040bd27c73ca7d BuildDate:2019-11-12T05:00:57Z GoOs:linux GoArch:amd64}
+
+* base/kustomization.yaml:
+
+.code base/kustomization.yaml
+
+view kustomization:
+
+  > kustomize build base
+
+
+with kubectl > 1.14:
+
+  > kubectl kustomize base
+
+* kustomized hello-app service
+
+  > kustomize build base
+  apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      stage: dev
+      sys: my
+    name: my-hello-app
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: hello-app
+      stage: dev
+      sys: my
+    type: NodePort
+
+Note: two new labels: sys=my and stage=dev and name-prefix="my-"
+
+* Deploying and deleting
+
+  > kustomize build base|kubectl apply -f -
+  configmap/my-cfg-f7974mhb9k created
+  service/my-hello-app created
+  service/my-nats-streaming created
+  deployment.apps/my-hello-app created
+  deployment.apps/my-nats-streaming created
+
+  > kustomize build base|kubectl delete -f -
+  configmap "my-cfg-f7974mhb9k" deleted
+  service "my-hello-app" deleted
+  service "my-nats-streaming" deleted
+  deployment.apps "my-hello-app" deleted
+  deployment.apps "my-nats-streaming" deleted
+
+* Selecting on the new labels
+
+  > kubectl get cm,svc,deploy,po -l sys=my,stage=dev
+  NAME                          DATA   AGE
+  configmap/my-cfg-f7974mhb9k   1      35s
+  
+  NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+  service/my-hello-app        NodePort    10.96.186.251   <none>        8080:31491/TCP   35s
+  service/my-nats-streaming   ClusterIP   10.96.121.165   <none>        4222/TCP         35s
+  
+  NAME                                READY   UP-TO-DATE   AVAILABLE   AGE
+  deployment.apps/my-hello-app        1/1     1            1           35s
+  deployment.apps/my-nats-streaming   1/1     1            1           34s
+  
+  NAME                                    READY   STATUS    RESTARTS   AGE
+  pod/my-hello-app-57fbdbf5d4-4q5x8       1/1     Running   0          34s
+  pod/my-nats-streaming-d5bb4488f-lq4zz   1/1     Running   0          34s
+
+* Creating a production overlay
+
+overlays/prod/kustomization.yaml:
+
+.code overlays/prod/kustomization.yaml
+
+* kustomized hello-app prod service
+
+  > kustomize build overlays/prod 
+  apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      stage: prod
+      sys: my
+    name: my-hello-app-prod
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: hello-app
+      stage: prod
+      sys: my
+    type: NodePort
+
+Note: changed label stage=prod and names have suffix "-prod"
+
+* Deploying and deleting the "prod" services
+
+  > kustomize build overlays/prod|kubectl apply -f -
+  configmap/my-cfg-prod-4tbf8mh6f8 created
+  service/my-hello-app-prod created
+  service/my-nats-streaming-prod created
+  deployment.apps/my-hello-app-prod created
+  deployment.apps/my-nats-streaming-prod created
+
+  > kustomize build overlays/prod|kubectl delete -f -
+  configmap "my-cfg-prod-4tbf8mh6f8" deleted
+  service "my-hello-app-prod" deleted
+  service "my-nats-streaming-prod" deleted
+  deployment.apps "my-hello-app-prod" deleted
+  deployment.apps "my-nats-streaming-prod" deleted
+
+* Continuous development of hello-app
+
+To develop and deploy hello-app:
+
+- Edit go source file: go build cmd/hello-app/main.go
+- Build and tag docker image: docker build . -t siuyin/junk:v32
+- Edit base/deployment.yaml to reflect new siuyin/junk:v32 image tag
+- Deploy to kubernetes: kustomize build base | kubectl apply -f -
+
+We can automate tag creation and updating of kustomize files with *skaffold*.
+
+  > skaffold version
+  v1.2.0
+
+
+
 * Presentation and code download
 
 
