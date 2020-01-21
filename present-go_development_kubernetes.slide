@@ -758,14 +758,15 @@ test/end2end/main.go:
 
 .code test/end2end/main.go /30 OMIT/,/40 OMIT/
       
-  > ENDPOINT=http://192.168.39.230:31051/ go run test/end2end/main.go
+  > ENDPOINT=http://192.168.39.230:31377/  go run test/end2end/main.go 
   End to end testing.
   
-  getting http://192.168.39.230:31051/
+  getting http://192.168.39.230:31377/
   checking status code
   checking response
   
-  tests complete.
+  tests complete. Took 0.005287454 seconds
+
 * Presentation and code download
 
 
