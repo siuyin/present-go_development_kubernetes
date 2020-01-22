@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/cloudflare/cfssl/log"
 	"github.com/siuyin/dflt"
 )
 
@@ -37,9 +36,10 @@ func get(endp string, t *testing.T) {
 		t.Fatalf("error reading body: %v", err)
 	}
 	if !bytes.Contains(body, []byte("Hello, the time is")) {
-		log.Errorf("unexpected body contents: %s\n", body)
+		t.Errorf("unexpected body contents: %s\n", body)
+	} else {
+		t.Logf("body contents OK")
 	}
-	t.Logf("body contents OK")
 }
 
 // 50 OMIT

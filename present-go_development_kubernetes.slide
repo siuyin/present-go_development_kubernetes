@@ -801,7 +801,7 @@ get is a test helper function that actually executes the test.
   PASS
   ok      github.com/siuyin/present-go_development_kubernetes/test/end2end        0.016s
 
-* End-to-end test failure simulation
+* End-to-end test failure
 
   > ENDPOINT=http://192.168.39.230:1234 go test
   === RUN   TestEndToEnd
