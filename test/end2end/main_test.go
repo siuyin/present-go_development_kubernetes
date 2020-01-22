@@ -37,7 +37,8 @@ func get(endp string, t *testing.T) {
 	}
 	if !bytes.Contains(body, []byte("Hello, the time is")) {
 		t.Errorf("unexpected body contents: %s\n", body)
-	} else {
+	}
+	if !t.Failed() {
 		t.Logf("body contents OK")
 	}
 }
