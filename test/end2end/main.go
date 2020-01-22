@@ -16,7 +16,7 @@ import (
 func main() {
 	endp := dflt.EnvString("ENDPOINT", "http://192.168.39.230:31051/")
 	start := time.Now()
-	fmt.Println("End to end testing.\n")
+	fmt.Printf("End to end testing.\n\n")
 	fmt.Printf("getting %s\n", endp)
 	resp, err := http.Get(endp)
 	if err != nil {

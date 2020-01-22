@@ -767,6 +767,58 @@ test/end2end/main.go:
   
   tests complete. Took 0.005287454 seconds
 
+* End-to-end testing with testing library
+
+test/end2end/main_test.go:
+
+.code test/end2end/main_test.go /10 OMIT/,/20 OMIT/
+.code test/end2end/main_test.go /30 OMIT/,/40 OMIT/
+
+In the above, each t.Run is a sub-test run independently.
+Two sub-tests are run -- to get "/" and "/a".
+
+get is a test helper function that actually executes the test.
+
+* get test helper
+
+.code test/end2end/main_test.go /40 OMIT/,/50 OMIT/
+
+* End-to-end test run
+
+  > ENDPOINT=http://192.168.39.230:31377 go test -v
+  === RUN   TestEndToEnd
+  === RUN   TestEndToEnd/root
+  === RUN   TestEndToEnd//a
+  --- PASS: TestEndToEnd (0.01s)
+      --- PASS: TestEndToEnd/root (0.00s)
+          main_test.go:18: connecting to endpoint: http://192.168.39.230:31377/
+          main_test.go:18: status code: 200
+          main_test.go:18: body contents OK
+      --- PASS: TestEndToEnd//a (0.00s)
+          main_test.go:19: connecting to endpoint: http://192.168.39.230:31377/a
+          main_test.go:19: status code: 200
+          main_test.go:19: body contents OK
+  PASS
+  ok      github.com/siuyin/present-go_development_kubernetes/test/end2end        0.016s
+
+* End-to-end test failure simulation
+
+  > ENDPOINT=http://192.168.39.230:1234 go test
+  === RUN   TestEndToEnd
+  === RUN   TestEndToEnd/root
+  === RUN   TestEndToEnd//a
+  --- FAIL: TestEndToEnd (0.00s)
+      --- FAIL: TestEndToEnd/root (0.00s)
+          main_test.go:18: connecting to endpoint: http://192.168.39.230:1234/
+          main_test.go:18: could not reach endpoint http://192.168.39.230:1234/: Get http://192.168.39.230:1234/: dial tcp 192.168.39.230:1234: connect: connection refused
+      --- FAIL: TestEndToEnd//a (0.00s)
+          main_test.go:19: connecting to endpoint: http://192.168.39.230:1234/a
+          main_test.go:19: could not reach endpoint http://192.168.39.230:1234/a: Get http://192.168.39.230:1234/a: dial tcp 192.168.39.230:1234: connect: connection refused
+  FAIL
+  exit status 1
+  FAIL    github.com/siuyin/present-go_development_kubernetes/test/end2end        0.015s
+
+
 * Presentation and code download
 
 
